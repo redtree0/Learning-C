@@ -5,13 +5,6 @@
 
 [Ref] Cplusplus <a name="cpp"></a> <http://www.cplusplus.com>
 
-[Ref] fork and exec <http://channelofchaos.tistory.com/55>
-
-[Ref] System call <http://duksoo.tistory.com/entry/System-call-등록-순서>
-
-[Ref] Subroutine <https://en.wikipedia.org/wiki/Subroutine>
-
-[Ref] What is the difference between system call and library call? <https://stackoverflow.com/questions/29816791/what-is-the-difference-between-system-call-and-library-call>
 <!--
 [Link text](#some-id)-->
 ## Basic lifetime of a shell
@@ -184,10 +177,10 @@ int lsh_launch(char **args)
   pid_t pid, wpid; // ①
   int status;
 
-  pid = fork(); // ②
+  pid = fork(); // child process id
   if (pid == 0) {
     // Child process
-    if (execvp(args[0], args) == -1) { // ③
+    if (execvp(args[0], args) == -1) { // ②
       perror("lsh");
     }
     exit(EXIT_FAILURE);
@@ -196,19 +189,36 @@ int lsh_launch(char **args)
     perror("lsh");
   } else {
     // Parent process
-    do { // ④
-      wpid = waitpid(pid, &status, WUNTRACED);
+    do { 
+      wpid = waitpid(pid, &status, WUNTRACED); // ③
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
   }
 
   return 1;
 }
 ```
-Subroutine vs System call
-### ① pid_t
-### ② process control
-### ③ execvp
-### ④ waitpid
+fork와 exec 에 관한 내용은 process 디렉토리에 따로 정리 해 놓았다.
+
+### ① pid_t 
+```c
+#define pid_t int
+```
+pid_t 는 int 타입이다.
+
+### ② execvp
+```c
+ int execvp(const char *file, char *const argv[]);
+```
+return 값이 없음, -1이다.
+return 값이 없는 것은 정상 실행 됬을때는 이미 다른 프로그램이다.
+return -1, 명령 실행 실패
+### ③ waitpid
+
+```c
+pid_t waitpid(pid_t pid, int *status, int options);
+```
+waitpid 함수는 인수로 주어진 pid 번호의 자식프로세스가 종료되거나, 시그널 함수를 호출하는 신호가 전달될때까지 waitpid 호출한 영역에서 일시 중지 된다.
+
 
 ## Shell Builtins
 

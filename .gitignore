@@ -1,1 +1,8 @@
 *.xcodeproj
+
+
+LinuxContainer/env
+LinuxContainer/.vagrant
+LinuxContainer/roles
+LinuxContainer/*.log
+LinuxContainer/*.retry

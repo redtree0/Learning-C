@@ -1,0 +1,9 @@
+---
+  - hosts: all
+    become: yes
+    vars:
+      docker_package_state: present
+      docker_users: ['vagrant']
+      docker_install_compose: false
+    roles:
+      - ansible-role-docker

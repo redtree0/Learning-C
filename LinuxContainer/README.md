@@ -1,4 +1,8 @@
 
+Prerequirements
+HOST : MacOS
+python : python2.7
+
 ```
 $ git clone https://github.com/redtree0/Learning-C.git
 $ cd LinuxContainer
@@ -9,14 +13,15 @@ $ source env/bin/activate
 
 ```
 (env) $ pip install -r requirements.txt
-(env)$ ansible-galaxy install -r requirements.yml -p roles/
+(env) $ ansible-galaxy install -r requirements.yml -p roles/
 ```
 
 ```
-$ make setup
+(env) $ make setup
 ```
 
 ```
+(env) $ vagrant ssh linuxcontainer
 vagrant@linuxcontainer:~$ git clone https://github.com/redtree0/diyC.git
 vagrant@linuxcontainer:~$ cd diyC
 vagrant@linuxcontainer:~$ make setup

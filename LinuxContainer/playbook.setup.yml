@@ -7,3 +7,9 @@
       docker_install_compose: false
     roles:
       - ansible-role-docker
+    tasks:
+      - name: "apt install make"
+        apt:
+          name: "make"
+          state: present
+          update_cache: true

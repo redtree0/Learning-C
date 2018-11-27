@@ -45,30 +45,48 @@ fork와 exec를 OS 관점에서 설명할 것이다.
 c언어로 다음과 같은 fork 예제를 실행해보자.
 
 ```c
-int cpid = fork( );
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-if (cpid = = 0) 
-{
-
-  //child code
-
-  exit(0);
-
+int main(){
+    printf("fork 전 현재 ppid = %d pid = %d \n", getppid() ,getpid());
+    int status;
+    pid_t cpid = fork();
+    if(cpid == 0){
+        
+        printf("자식 프로세스 ppid = %d pid = %d cid = %d \n", getppid() , getpid(), cpid);
+        
+    }else{
+        
+        printf("현재 프로세스 ppid = %d pid = %d cid = %d \n", getppid() , getpid(), cpid);
+        
+        do {
+            waitpid(cpid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    return 0;
 }
 
-//parent code
 
-wait(cpid);
-
-// end
 ```
+
+[실행 결과]
+```
+fork 전 현재 ppid = 6257 pid = 6256 
+현재 프로세스 ppid = 6257 pid = 6256 cid = 6258 
+자식 프로세스 ppid = 6256 pid = 6258 cid = 0 
+Program ended with exit code: 0
+```
+
+
 #### 1. 프로그램 실행
  
  pid는 다음과 같다.
  
 | pid|ppid| cpid|description|
 |--- |---| --- | ---|
-|25  | 1  | 0 |main process  |
+|25  | ?  | 0 |main process  |
 
 
 ![Alt text](./assets/fork_step01.png "fork step01")
@@ -78,7 +96,7 @@ fork로 process가 복제되고 child는 다른 pid가 할당된다.
 
 | pid |ppid| cpid|         description           |
 |---- |--- | --- | ------------------------      |
-| 25  | 1  | 26  | main process (parent process) |
+| 25  | ?  | 26  | main process (parent process) |
 | 26  | 25 | 0   | forked process (child process)|
 
 
@@ -113,25 +131,40 @@ wait(cpid)로 pid 26번 프로세스가 종료될 때까지 대기하는 상태�
 c언어로 다음과 같은 exec 예제를 실행해보자.
 
 ```c
-int cpid = fork( );
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-if (cpid = = 0) 
-{
-
-  //child code
-
-  exec(foo);
-
-  exit(0);
-
+int main(){
+    printf("fork 전 현재 ppid = %d pid = %d \n", getppid() ,getpid());
+    int status;
+    pid_t cpid = fork();
+    if(cpid == 0){
+        
+        printf("자식 프로세스 ppid = %d pid = %d cid = %d \n", getppid() , getpid(), cpid);
+        char *argv[] ={ "ls", "-al", "/tmp", NULL};
+        execvp("ls", argv);
+        printf("exec 수행 후 [실행 X] 자식 프로세스 ppid = %d pid = %d cid = %d \n", getppid() , getpid(), cpid);
+    
+    }else{
+        
+        printf("현재 프로세스 ppid = %d pid = %d cid = %d \n", getppid() , getpid(), cpid);
+        
+        do {
+            waitpid(cpid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    return 0;
 }
 
-//parent code
-
-wait(cpid);
-
-// end
-
+```
+[실행 결과]
+```
+fork 전 현재 ppid = 6235 pid = 6234 
+현재 프로세스 ppid = 6235 pid = 6234 cid = 6236 
+자식 프로세스 ppid = 6234 pid = 6236 cid = 0 
+lrwxr-xr-x@ 1 root  wheel  11 Nov  6 17:41 /tmp -> private/tmp
+Program ended with exit code: 0
 ```
 
 시나리오가 fork 1 ~ 4 설명과 동일하다.
